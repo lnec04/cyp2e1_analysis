@@ -11,9 +11,7 @@ suppressPackageStartupMessages({
   library(tidyr)
 })
 
-in_peaks_csv <- here("github", "cyp2e1", "02_peak_linking", "tables", "cyp2e1_hub_peaks_metadata.csv")
-out_dir      <- here("github", "cyp2e1", "03_motif_analysis", "tables")
-dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+in_peaks_csv <- here("export", "02_cyp2e1_hub_peaks_metadata.csv")
 
 peaks_df <- read_csv(in_peaks_csv, show_col_types = FALSE)
 pfm_all  <- getMatrixSet(x = JASPAR2020, opts = list(collection = "CORE", tax_group = "vertebrates", all_versions = FALSE))
@@ -34,4 +32,4 @@ occupancy_matrix <- bind_rows(hits_list) %>%
   distinct() %>%
   pivot_wider(names_from = TF, values_from = Found, values_fill = 0)
 
-write_csv(occupancy_matrix, file.path(out_dir, "motif_occupancy_matrix_p1_p8.csv"))
+write_csv(occupancy_matrix, here("export", "03_motif_occupancy_matrix_p1_p8.csv"))

@@ -6,8 +6,8 @@ suppressPackageStartupMessages({
 })
 
 # Input Paths
-drivers_path   <- here("github", "cyp2e1", "01_tf_activity", "tables", "top_hepatocyte_lineage_drivers.csv")
-occupancy_path <- here("github", "cyp2e1", "03_motif_analysis", "tables", "motif_occupancy_matrix_p1_p8.csv")
+drivers_path   <- here("export", "01_top_hepatocyte_lineage_drivers.csv")
+occupancy_path <- here("export", "03_motif_occupancy_matrix_p1_p8.csv")
 
 # Load
 drivers   <- read_csv(drivers_path, show_col_types = FALSE)
@@ -22,4 +22,5 @@ final_synthesis <- drivers %>%
   select(TF, Peak_ID, combined_score, chromvar_z, dorothea_z) %>%
   arrange(Peak_ID, desc(combined_score))
 
-write_csv(final_synthesis, here("github", "cyp2e1", "final_tf_peak_binding_synthesis.csv"))
+write_csv(final_synthesis,
+          here("export", "05_final_tf_peak_binding_synthesis.csv"))

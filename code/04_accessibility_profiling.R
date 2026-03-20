@@ -7,10 +7,8 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-in_peaks  <- here("github", "cyp2e1", "02_peak_linking", "tables", "cyp2e1_hub_peaks_metadata.csv")
-in_seurat <- here("02_processed", "primary", "GSE281574_Liver_Multiome_Seurat_GEO.rds")
-out_dir   <- here("github", "cyp2e1", "04_accessibility", "tables")
-dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+in_peaks  <- here("export", "02_cyp2e1_hub_peaks_metadata.csv")
+in_seurat <- here("data", "GSE281574_Liver_Multiome_Seurat_GEO.rds")
 
 obj <- readRDS(in_seurat)
 obj <- obj[, obj@meta.data$Condition == "Normal"]
@@ -36,4 +34,4 @@ stats_df <- bind_rows(lapply(cell_types, function(ct) {
   filter(peak %in% peak_map$peak) %>%
   left_join(peak_map, by = "peak")
 
-write_csv(stats_df, file.path(out_dir, "peak_accessibility_by_celltype.csv"))
+write_csv(stats_df, here("export", "04_peak_accessibility_by_celltype.csv"))

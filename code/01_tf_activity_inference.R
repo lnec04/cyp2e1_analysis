@@ -16,7 +16,7 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-# PARALLELISIERUNG
+# parallelization
 n_cores <- 8
  register(BiocParallel::MulticoreParam(
     workers  = n_cores,
@@ -25,12 +25,10 @@ n_cores <- 8
   ))
 
 
-# PFADE
-seurat_rds_path <- here("02_processed", "primary", "GSE281574_Liver_Multiome_Seurat_GEO.rds")
-out_dir_tables  <- here("github", "cyp2e1", "01_tf_activity", "tables")
-dir.create(out_dir_tables, recursive = TRUE, showWarnings = FALSE)
+# paths
+seurat_rds_path <- here("data", "GSE281574_Liver_Multiome_Seurat_GEO.rds")
 
-# DATEN LADEN & HARMONISIEREN
+# load & harmonize
 obj <- readRDS(seurat_rds_path)
 
 obj <- obj[, obj@meta.data$Condition == "Normal"]
@@ -43,7 +41,7 @@ obj@meta.data$CellTypeSR <- dplyr::case_when(
   TRUE ~ obj@meta.data$CellTypeSR
 )
 
-# CHROMVAR
+# chromvar
 DefaultAssay(obj) <- "ATAC"
 obj <- RegionStats(obj, genome = BSgenome.Hsapiens.UCSC.hg38)
 
@@ -69,7 +67,7 @@ motif_matrix <- motifMatches(
 rownames(motif_matrix) <- rownames(obj)
 Motifs(obj) <- CreateMotifObject(data = motif_matrix, pwm = pfm)
 
-# chromVAR direkt — umgeht RunChromVAR Seurat-Wrapper (slot/layer Konflikt)
+# direct chromvar — bypasses RunChromVAR wrapper (slot/layer conflict)
 counts_mat  <- GetAssayData(obj, assay = "ATAC", layer = "counts")
 peaks_keep  <- rowSums(counts_mat) > 0
 counts_filt <- counts_mat[peaks_keep, ]
@@ -93,7 +91,7 @@ chromvar_scores <- chromVAR::deviationScores(dev)
 colnames(chromvar_scores) <- colnames(obj)
 obj[["chromvar"]] <- SeuratObject::CreateAssayObject(data = chromvar_scores)
 
-# CHROMVAR PSEUDOBULK — alle Zelltypen (für cross-lineage accessibility)
+# chromvar pseudobulk — all cell types
 chromvar_data  <- GetAssayData(obj, assay = "chromvar", layer = "data")
 cell_types_vec <- obj$CellTypeSR
 
@@ -105,7 +103,6 @@ chrom_pb_all <- as.data.frame(
 chrom_pb_all$motif_id <- rownames(chrom_pb_all)
 rownames(chrom_pb_all) <- NULL
 
-# Exportiere vollständige Matrix für cross-lineage heatmap
 chromvar_tf_all <- chrom_pb_all %>%
   left_join(motif_map, by = "motif_id") %>%
   filter(!is.na(tf_primary)) %>%
@@ -114,18 +111,18 @@ chromvar_tf_all <- chrom_pb_all %>%
 
 write.csv(
   chromvar_tf_all,
-  file.path(out_dir_tables, "chromvar_pseudobulk_all_celltypes.csv"),
+  here("export", "01_chromvar_pseudobulk_all_celltypes.csv"),
   row.names = FALSE
 )
 
-# Z-SCORE NUR FÜR HEPATOZYTEN (CYP2E1 hepatozyten-spezifisch)
+# z-score hepatocytes only
 z_score <- function(x) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
 
 chromvar_z <- chromvar_tf_all %>%
   mutate(across(-TF, z_score)) %>%
   select(TF, chromvar_z = Hepatocyte)
 
-# DOROTHEA
+# dorothea
 rna_pb <- AggregateExpression(
   object      = obj,
   assays      = "RNA",
@@ -157,24 +154,22 @@ tf_wide <- tf_activities %>%
   select(TF = source, condition, score) %>%
   pivot_wider(names_from = condition, values_from = score)
 
-# Z-Score nur Hepatozyten
 hep_col <- grep("^Hepatocyte", colnames(tf_wide), value = TRUE)[1]
 
 dorothea_z <- tf_wide %>%
   mutate(across(-TF, z_score)) %>%
   select(TF, dorothea_z = !!sym(hep_col))
 
-# INTEGRATION & LINEAGE DRIVERS
+# integration & lineage drivers
 comparison_all <- inner_join(chromvar_z, dorothea_z, by = "TF") %>%
   mutate(combined_score = (chromvar_z + dorothea_z) / 2)
 
 write.csv(
   comparison_all,
-  file.path(out_dir_tables, "tf_activity_scores_comparison.csv"),
+  here("export", "01_tf_activity_scores_comparison.csv"),
   row.names = FALSE
 )
 
-# LINEAGE DRIVERS
 hep_col_rna <- grep("^Hepatocyte", colnames(rna_pb), value = TRUE)[1]
 avg_expr_hep <- rna_pb[intersect(comparison_all$TF, rownames(rna_pb)), hep_col_rna]
 
@@ -185,6 +180,6 @@ lineage_drivers <- comparison_all %>%
 
 write.csv(
   lineage_drivers,
-  file.path(out_dir_tables, "top_hepatocyte_lineage_drivers.csv"),
+  here("export", "01_top_hepatocyte_lineage_drivers.csv"),
   row.names = FALSE
 )
