@@ -7,7 +7,7 @@ suppressPackageStartupMessages({
 
 # Input Paths
 drivers_path   <- here("export", "01_top_hepatocyte_lineage_drivers.csv")
-occupancy_path <- here("export", "03_motif_occupancy_matrix_p1_p8.csv")
+occupancy_path <- here("export", "05_motif_occupancy_matrix_p1_p8.csv")
 
 # Load
 drivers   <- read_csv(drivers_path, show_col_types = FALSE)
@@ -23,4 +23,4 @@ final_synthesis <- drivers %>%
   arrange(Peak_ID, desc(combined_score))
 
 write_csv(final_synthesis,
-          here("export", "05_final_tf_peak_binding_synthesis.csv"))
+          here("export", "06_final_tf_peak_binding_synthesis.csv"))

@@ -30,7 +30,8 @@ obj_hep <- LinkPeaks(obj_hep, peak.assay = "ATAC", expression.assay = "RNA", gen
 
 # extract the hubs
 hub_peaks <- as.data.frame(Links(obj_hep)) %>%
-  filter(score > 0 & pvalue < 0.05) %>%
+  mutate(FDR = p.adjust(pvalue, method = "BH")) %>%
+  filter(score > 0 & FDR < 0.05) %>%
   arrange(desc(score)) %>%
   mutate(Peak_ID = paste0("P", row_number()), Peak = gsub(":", "-", peak))
 

@@ -14,15 +14,16 @@ data/GSE281574_Liver_Multiome_Seurat_GEO.rds
 
 ## Pipeline
 
-Scripts must be executed sequentially: `01 → 02 → 03 → 04 → 05`. All tabular outputs are written to `export/`.
+Scripts must be executed sequentially: `01 → 02 → 03 → 04 → 05 → 06`. All tabular outputs are written to `export/`.
 
 | Script | Function | Output |
 |--------|----------|--------|
 | `01_tf_activity_inference.R` | Integrates chromVAR (motif accessibility) and DoRothEA (TF target expression via ULM) to identify hepatocyte lineage drivers | `export/01_chromvar_pseudobulk_all_celltypes.csv`<br>`export/01_tf_activity_scores_comparison.csv`<br>`export/01_top_hepatocyte_lineage_drivers.csv` |
-| `02_peak_linking_cyp2e1.R` | Identifies the CYP2E1 regulatory enhancer hub (P1–P8) in hepatocytes via Signac LinkPeaks (1 Mb window, score > 0, p < 0.05) | `export/02_cyp2e1_hub_peaks_metadata.csv` |
-| `03_motif_analysis.R` | Maps JASPAR2020 CORE vertebrate motifs to P1–P8 elements; constructs binary occupancy matrix | `export/03_motif_occupancy_matrix_p1_p8.csv` |
-| `04_accessibility_profiling.R` | Quantifies ATAC accessibility of P1–P8 across all cell types | `export/04_peak_accessibility_by_celltype.csv` |
-| `05_pipeline_synthesis.R` | Intersects TF lineage drivers with motif occupancy to determine combinatorial binding architecture at the CYP2E1 locus | `export/05_final_tf_peak_binding_synthesis.csv` |
+| `02_peak_linking_cyp2e1.R` | Identifies the CYP2E1 regulatory enhancer hub (P1–P8) in normal hepatocytes via Signac LinkPeaks (1 Mb window, score > 0, FDR-adjusted p < 0.05) | `export/02_cyp2e1_hub_peaks_metadata.csv` |
+| `03_differential_accessibility_p1_p8.R` | Validates hepatocyte-enriched accessibility of P1–P8 via logistic regression adjusting for ATAC library size bias (adjusted p < 0.05) | `export/03_da_peaks_hepatocyte_enriched_stats.csv` |
+| `04_motif_analysis.R` | Maps JASPAR2020 Homo sapiens motifs to P1–P8 elements; constructs binary occupancy matrix | `export/04_motif_occupancy_matrix_p1_p8.csv` |
+| `05_accessibility_profiling.R` | Quantifies baseline ATAC accessibility (prevalence and magnitude) of P1–P8 across all cell types | `export/05_peak_accessibility_by_celltype.csv` |
+| `06_pipeline_synthesis.R` | Intersects TF lineage drivers with motif occupancy to determine combinatorial binding architecture at the CYP2E1 locus | `export/06_final_tf_peak_binding_synthesis.csv` |
 
 ## Reproducibility
 

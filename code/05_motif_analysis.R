@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
 in_peaks_csv <- here("export", "02_cyp2e1_hub_peaks_metadata.csv")
 
 peaks_df <- read_csv(in_peaks_csv, show_col_types = FALSE)
-pfm_all  <- getMatrixSet(x = JASPAR2020, opts = list(collection = "CORE", tax_group = "vertebrates", all_versions = FALSE))
+pfm_all  <- getMatrixSet(x = JASPAR2020, opts = list(collection = "CORE", species = 9606, all_versions = FALSE))
 
 # Motif Matching
 gr_fg <- StringToGRanges(peaks_df$Peak)
@@ -32,4 +32,4 @@ occupancy_matrix <- bind_rows(hits_list) %>%
   distinct() %>%
   pivot_wider(names_from = TF, values_from = Found, values_fill = 0)
 
-write_csv(occupancy_matrix, here("export", "03_motif_occupancy_matrix_p1_p8.csv"))
+write_csv(occupancy_matrix, here("export", "05_motif_occupancy_matrix_p1_p8.csv"))
