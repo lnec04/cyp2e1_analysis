@@ -1,4 +1,4 @@
-# cyp2e1_figure3_analysis
+# cyp2e1_analysis
 
 Bioinformatics pipeline accompanying the manuscript: *"Integrated single-cell and epigenomic analysis reveals cellular specificity of CYP2E1 in human alcohol-related liver disease"*. Reconstructs the transcriptional and epigenetic regulatory architecture governing CYP2E1 expression.
 
