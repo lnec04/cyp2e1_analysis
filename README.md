@@ -37,6 +37,5 @@ Independent analysis. Can be run separately from the Figure 3 pipeline.
 
 ## Reproducibility
 
-- **OS:** Linux
 - **Environment:** Restore exact package versions via `renv::restore()` using the provided `renv.lock`
 - **Paths:** Managed via the `here` package; all paths are relative to the repository root
